@@ -1,0 +1,32 @@
+services:
+  ha-influxdb:
+    container_name: ha-influxdb
+    image: "influxdb:2"
+    restart: unless-stopped
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_BUCKET=homeassistant
+      - DOCKER_INFLUXDB_INIT_ORG=homeassistant
+      - DOCKER_INFLUXDB_INIT_USERNAME_FILE=/run/secrets/influx-un
+      - DOCKER_INFLUXDB_INIT_PASSWORD_FILE=/run/secrets/influx-pw
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE=/run/secrets/influx-admin-token
+    volumes:
+      - ./data:/var/lib/influxdb2
+      - ./config:/etc/influxdb2
+    networks:
+      - ha_network
+    secrets:
+      - influx-un
+      - influx-pw
+      - influx-admin-token
+networks:
+  ha_network:
+    external: true
+
+secrets:
+  influx-un:
+    file: ~/docker-settings/ha-secrets/init-user.secret
+  influx-pw:
+    file: ~/docker-settings/ha-secrets/init-pw.secret
+  influx-admin-token:
+    file: ~/docker-settings/ha-secrets/init-admin-token.secret
